@@ -73,7 +73,3 @@ func SGetSize(st *Stack) int {
 func isEmptyStack(st *Stack) bool {
     return st.size == 0
 }
-
-func isFull(st *Stack) bool {
-    return st.size == st.capacity-1
-}

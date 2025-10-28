@@ -66,10 +66,6 @@ func QPop(q *Queue) {
     q.size--
 }
 
-func isEmpty(queue *Queue) bool {
-	return queue.size == 0
-}
-
 func QGetSize(q *Queue) int {
 	return q.size
 }
