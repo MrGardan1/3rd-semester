@@ -24,12 +24,14 @@ void DLPushBack(DoubleList& ls, string key);
 void DLPushAt(DoubleList& ls, int index, string key);
 
 void DLFind(DoubleList& ls, string key);
-//void DLPushAft(DoubleList& ls,string target, string key);
-//void DLPushBef(DoubleList& ls, string target, string key);
+void DLPushAft(DoubleList& ls,string target, string key);
+void DLPushBef(DoubleList& ls, string target, string key);
 void DLDelValue(DoubleList& ls, string key);
 void DLDelAt(DoubleList& ls, int index);
 void DLDelFront(DoubleList& ls);
 void DLDelBack(DoubleList& ls);
+void DLDelAfter(DoubleList& ls, string target);
+void DLDelBefore(DoubleList& ls, string target);
 void DLDelAll(DoubleList& ls);
 int DLGetSize(DoubleList& ls);
 string DLGetAt(DoubleList& ls, int index);

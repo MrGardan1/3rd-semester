@@ -191,6 +191,7 @@ void mainCommand(const string& command) {
             delete currentList;
         }
         currentList = new SingleLL{nullptr, 0};
+        currentList->size = 0;
         cout << "Односвязный список создан" << endl;
     }
     else if (cmd == "FPUSH") {
@@ -201,17 +202,34 @@ void mainCommand(const string& command) {
     string type;
     string value;
     ss >> type;
-    getline(ss, value);
-    value = value.empty() ? "" : value.substr(1);
+    
     
     if (type == "F") {
+        getline(ss, value);
+        value = value.empty() ? "" : value.substr(1);
         FPushFront(*currentList, value);
         cout << "Элемент добавлен в начало" << endl;
     } else if (type == "B") {
+        getline(ss, value);
+        value = value.empty() ? "" : value.substr(1);
         FPushBack(*currentList, value);
         cout << "Элемент добавлен в конец" << endl;
+    } else if (type == "AFT") {
+        string target;
+        ss >> target;
+        getline(ss, value);
+        value = value.empty() ? "" : value.substr(1);
+        FPushAfter(*currentList, target, value);   
+    } else if (type == "BEF") {
+        string target;
+        ss >> target;
+        getline(ss, value);
+        value = value.empty() ? "" : value.substr(1);
+        FPushBefore(*currentList, target, value);
     } else {
         int index = stoi(type);
+        getline(ss, value);
+        value = value.empty() ? "" : value.substr(1);
         FPushAt(*currentList, index, value);
     }
 } 
@@ -224,33 +242,26 @@ void mainCommand(const string& command) {
         ss >> type;
         
         if (type == "F") {
-            if (currentList->head) {
-                FDelValue(*currentList, currentList->head->key);
-                cout << "Элемент удален из начала" << endl;
-            }
+            FDelFront(*currentList);
         }
         else if (type == "B") {
-            if (currentList->head) {
-
-                if (currentList->head->next == nullptr) {
-                    FDelValue(*currentList, currentList->head->key);
-
-                } else {
-
-                    SLNode* current = currentList->head;
-                    while (current->next->next != nullptr) {
-                        current = current->next;
-                    }
-
-                    FDelValue(*currentList, current->next->key);
-                }
-            }
+            FDelBack(*currentList);
         }
         else if (type == "V") {
             string value;
             getline(ss, value);
             value = value.empty() ? "" : value.substr(1);
             FDelValue(*currentList, value);
+        } else if (type == "AFT") {
+            string target;
+            getline(ss,target);
+            target = target.empty() ? "" : target.substr(1);
+            FDelAfter(*currentList, target);
+        } else if (type == "BEF") {
+            string target;
+            getline(ss,target);
+            target = target.empty() ? "" : target.substr(1);
+            FDelBefore(*currentList, target);
         } else {
             int index = stoi(type);
             FDelAt(*currentList, index);
@@ -335,19 +346,34 @@ void mainCommand(const string& command) {
         string type;
         string value;
         ss >> type;
-        getline(ss, value);
-        value = value.empty() ? "" : value.substr(1);
-        
         if (type == "F") {
+            getline(ss, value);
+            value = value.empty() ? "" : value.substr(1);
             DLPushFront(*currentDList, value);
         }
         else if (type == "B") {
+            getline(ss, value);
+            value = value.empty() ? "" : value.substr(1);
             DLPushBack(*currentDList, value);
+        }
+        else if (type == "AFT") {
+            string target;
+            ss >> target;
+            getline(ss, value);
+            value = value.empty() ? "" : value.substr(1);
+            DLPushAft(*currentDList, target, value);
+        } else if (type == "BEF") {
+            string target;
+            ss >> target;
+            getline(ss, value);
+            value = value.empty() ? "" : value.substr(1);
+            DLPushBef(*currentDList, target, value);
         } else {
             int index = stoi(type);
+            getline(ss, value);
+            value = value.empty() ? "" : value.substr(1);
             DLPushAt(*currentDList, index,value);
         }
-        
     }
     else if (cmd == "LDEL") {
         if (!currentDList) {
@@ -368,6 +394,16 @@ void mainCommand(const string& command) {
             getline(ss, value);
             value = value.empty() ? "" : value.substr(1);
             DLDelValue(*currentDList, value);
+        } else if (type == "AFT") {
+            string target;
+            getline(ss, target);
+            target = target.empty() ? "" : target.substr(1);
+            DLDelAfter(*currentDList, target);
+        } else if (type == "BEF") {
+            string target;
+            getline(ss, target);
+            target = target.empty() ? "" : target.substr(1);
+            DLDelBefore(*currentDList, target);
         } else {
             int index = stoi(type);
             DLDelAt(*currentDList, index);
@@ -1022,8 +1058,8 @@ void printM() {
 void printF() {
     cout << "\nОДНОСВЯЗНЫЙ СПИСОК (F):" << endl;
     cout << "  FCREATE - создать список" << endl;
-    cout << "  FPUSH F|B|index \"value\" - добавить элемент" << endl;
-    cout << "  FDEL F|B|V|index - удалить элемент" << endl;
+    cout << "  FPUSH F|B|AFT|BEF|index \"value\" - добавить элемент" << endl;
+    cout << "  FDEL F|B|V|AFT|BEF|index - удалить элемент" << endl;
     cout << "  FGET F|B|index - получить элемент" << endl;
     cout << "  FFIND \"value\" - найти элемент" << endl;
     cout << "  FPRINT - вывести список" << endl;
@@ -1034,8 +1070,8 @@ void printF() {
 void printL() {
     cout << "\nДВУСВЯЗНЫЙ СПИСОК (L):" << endl;
     cout << "  LCREATE - создать список" << endl;
-    cout << "  LPUSH F|B|index \"value\" - добавить элемент" << endl;
-    cout << "  LDEL F|B|V|index \"target\" - удалить элемент" << endl;
+    cout << "  LPUSH F|B|AFT|BEF|index \"value\" - добавить элемент" << endl;
+    cout << "  LDEL F|B|V|AFT|BEF|index \"target\" - удалить элемент" << endl;
     cout << "  LGET F|B|index - получить элемент" << endl;
     cout << "  LPRINT F|B - вывести список" << endl;
     cout << "  LSAVE filename - сохранить в файл" << endl;

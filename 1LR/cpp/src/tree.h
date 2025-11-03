@@ -20,7 +20,7 @@ struct Tree {
     TreeNode* root;
     int size;
 };
-
+   
 void initTree(Tree* tree);
 void deleteTree(Tree* tree);
 

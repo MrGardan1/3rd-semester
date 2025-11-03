@@ -94,19 +94,6 @@ void DLPushAt(DoubleList& ls, int index, string key) {
         cout << "Error: Incorrect index" << endl;
         return;
     }
-
-    DLNode* newNode = new DLNode{key, nullptr, nullptr};
-
-    if (ls.head == nullptr) {
-        if (index == 0) {
-            DLPushFront(ls, key);
-        } else {
-            cout << "Error: List is empty, can only insert at index 0" << endl;
-            delete newNode;
-        }
-        return;
-    }
-
     if (index == 0) {
         DLPushFront(ls, key);
         return;
@@ -114,10 +101,13 @@ void DLPushAt(DoubleList& ls, int index, string key) {
 
     if (index == ls.size) {
         DLPushBack(ls, key);
+        return;  
     }
 
+    DLNode* newNode = new DLNode{key, nullptr, nullptr};
+
     DLNode* current = ls.head;
-    for (int i = 0; current != nullptr && i < index; i++) {
+    for (int i = 0; i < index && current != nullptr; i++) {
         current = current->next;
     }
 
@@ -131,71 +121,62 @@ void DLPushAt(DoubleList& ls, int index, string key) {
         current->past = newNode;
         
         ls.size++;
-        cout << "Элемент " << key << " добавлен по индексу " << index << endl;
+        cout << "Элемент '" << key << "' добавлен по индексу " << index << endl;
     }
 }
-/*
-void DLPushAft(DoubleList& ls,string target, string key) {
-        DLNode* newNode = new DLNode {key,nullptr, nullptr};
-        if (ls.head == nullptr) {
-            ls.head = newNode;
-            ls.size++;
-            return;
-        }
 
-        DLNode* current = ls.head;
-        while (current != nullptr && current -> key != target) {
-            current = current -> next;
-        }
-
-        if (current != nullptr) {
-
-            newNode -> past = current;
-            newNode -> next = current -> next;
-
-            if (current -> next != nullptr) {
-                current -> next -> past = newNode;
-            }
-            current -> next = newNode;
-            ls.size++;
-        } else {
-            cout << "Element " << target << " didn't find" << endl;
-            delete newNode;
-            return;
-        }
-
-    }
-
-void DLPushBef(DoubleList& ls, string target, string key) {
-    DLNode* newNode = new DLNode{key,nullptr, nullptr};
+void DLPushAft(DoubleList& ls, string target, string key) {
     if (ls.head == nullptr) {
-        ls.head = newNode;
-        ls.size++;
+        cout << "Ошибка: Список пуст" << endl;
         return;
     }
-
     DLNode* current = ls.head;
-    while (current != nullptr && current -> key != target ) {
-        current = current -> next;
+    while (current != nullptr && current->key != target) {
+        current = current->next;
     }
-
-    if (current != nullptr) {
-        newNode -> past = current ->past;
-        newNode -> next = current;
-
-        if (current -> past != nullptr) {
-            current -> past -> next = newNode;
-        } else {
-            ls.head = newNode;
-        }
-        current -> past = newNode;
-        ls.size++;
-    } else {
-        cout << "Element " << target << " didn't find" << endl;
-        delete newNode;
+    if (current == nullptr) {
+        cout << "Элемент '" << target << "' не найден" << endl;
+        return;
     }
+    DLNode* newNode = new DLNode{key, nullptr, nullptr};
+    newNode->past = current;
+    newNode->next = current->next;
+    if (current->next != nullptr) {
+        current->next->past = newNode;
+    }
+    current->next = newNode;
+    ls.size++;
+
+    cout << "Элемент " << key << " добавлен после " << target << endl;
 }
-*/
+
+void DLPushBef(DoubleList& ls, string target, string key) {
+    if (ls.head == nullptr) {
+        cout << "Ошибка: Список пуст" << endl;
+        return;
+    }
+    DLNode* current = ls.head;
+    while (current != nullptr && current->key != target) {
+        current = current->next;
+    }
+    if (current == nullptr) {
+        cout << "Элемент '" << target << "' не найден" << endl;
+        return;
+    }
+    DLNode* newNode = new DLNode{key, nullptr, nullptr};
+    
+    newNode->past = current->past;
+    newNode->next = current;
+    if (current->past != nullptr) {
+        current->past->next = newNode;
+    } else {
+        ls.head = newNode;
+    }
+    current->past = newNode;
+    ls.size++;
+    cout << "Элемент " << key << " добавлен перед " << target << endl;
+}
+
 void DLDelValue(DoubleList& ls, string key) {
     
     if (ls.head == nullptr) {
@@ -296,6 +277,68 @@ void DLDelBack(DoubleList& ls) {
     }
     delete current;
     ls.size--;
+}
+
+void DLDelAfter(DoubleList& ls, string target) {
+    if (ls.head == nullptr) {
+        cout << "Ошибка: пустой список" << endl;
+        return;
+    }
+    DLNode* current = ls.head;
+    while (current != nullptr && current->key != target) {
+        current = current->next;
+    }
+    if (current == nullptr) {
+        cout << "Элемент " << target << " не найден" << endl;
+        return;
+    }
+    if (current->next == nullptr) {
+        cout << "После элемента " << target << " нет элементов" << endl;
+        return;
+    }
+    DLNode* delNode = current->next;
+    current->next = delNode->next;
+    
+    if (delNode->next != nullptr) {
+        delNode->next->past = current;
+    }
+    
+    delete delNode;
+    ls.size--;
+    cout << "Элемент после " << target << " удален" << endl;
+}
+
+void DLDelBefore(DoubleList& ls, string target) {
+    if (ls.head == nullptr) {
+        cout << "Ошибка: пустой список" << endl;
+        return;
+    }
+
+    DLNode* current = ls.head;
+    while (current != nullptr && current->key != target) {
+        current = current->next;
+    }
+
+    if (current == nullptr) {
+        cout << "Элемент '" << target << "' не найден" << endl;
+        return;
+    }
+    if (current->past == nullptr) {
+        cout << "Перед элементом '" << target << "' нет элементов" << endl;
+        return;
+    }
+
+    DLNode* delNode = current->past;
+    current->past = delNode->past;
+    if (delNode->past != nullptr) {
+        delNode->past->next = current;
+    } else {
+        ls.head = current;
+    }
+    
+    delete delNode;
+    ls.size--;
+    cout << "Элемент перед '" << target << "' удален" << endl;
 }
 
 void DLDelAll(DoubleList& ls) {

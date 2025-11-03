@@ -69,11 +69,8 @@ void MInsert(Array& arr, int index, string key) {
     }
     
     if (index > arr.size) {
-        for (int i = arr.size; i < index; i++) {
-            arr.data[i] = "";
-        }
-        arr.data[index] = key;
-        arr.size = index + 1;  
+        cout << "Out of range" << endl;
+        return;  
     } else {
         for (int i = arr.size; i > index; i--) {
             arr.data[i] = arr.data[i - 1];
@@ -84,7 +81,11 @@ void MInsert(Array& arr, int index, string key) {
 }
 
 void MReplace(Array& arr, int index, string key) {
-    MInsert(arr, index, key);
+    if (index < 0 || index > arr.size) {
+        cout << "Out of range" << endl;
+        return;
+    }
+    arr.data[index] = key;
 }
 
 void MPushBack(Array& arr, string key) {

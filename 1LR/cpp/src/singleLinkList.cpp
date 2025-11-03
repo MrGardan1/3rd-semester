@@ -55,6 +55,7 @@ void FPushAt(SingleLL& ls, int index, string value) {
         newNode->next = ls.head;
         ls.head = newNode;
         cout << "Элемент '" << value << "' добавлен по индексу " << index << endl;
+        ls.size++;
         return;
     }
     
@@ -74,36 +75,43 @@ void FPushAt(SingleLL& ls, int index, string value) {
     
     newNode->next = current->next;
     current->next = newNode;
-    
+    ls.size++;
     cout << "Элемент '" << value << "' добавлен по индексу " << index << endl;
 }
 
 
-/*
 void FPushAfter(SingleLL& ls, string target, string key) {
-    if (ls.head == nullptr) {CreateSL(ls, key); return;}
+    if (ls.head == nullptr) {
+        cout << "Ошибка: Список пуст" << endl;
+        return;
+    }
+    
     SLNode* current = ls.head;
     while(current != nullptr && current -> key != target) {
         current = current -> next;
     }
+    
     if (current == nullptr) {
-        cout << "Target didn't find" << endl;
+        cout << "Элемент '" << target << "' не найден" << endl;
         return;
     }
 
-    SLNode* newNode = new SLNode{key,nullptr};
+    SLNode* newNode = new SLNode{key, nullptr};
     newNode -> next = current -> next;
     current -> next = newNode;
     ls.size++;
+    cout << "Элемент '" << key << "' добавлен после '" << target << "'" << endl;
 }
 
 void FPushBefore(SingleLL& ls, string target, string key) {
-    if( ls.head == nullptr) {
-        CreateSL(ls, key); 
+    if(ls.head == nullptr) {
+        cout << "Ошибка: Список пуст" << endl;
         return;
     }
+    
     if (ls.head -> key == target) {
         FPushFront(ls, key);
+        cout << "Элемент '" << key << "' добавлен перед '" << target << "'" << endl;
         return;
     }
 
@@ -111,32 +119,35 @@ void FPushBefore(SingleLL& ls, string target, string key) {
     while (current -> next != nullptr && current->next -> key != target) {
         current = current -> next;
     }
+    
     if (current -> next != nullptr) {
-        SLNode* newNode = new SLNode{key,nullptr};
+        SLNode* newNode = new SLNode{key, nullptr};
         newNode->next = current->next;
-        current->next= newNode;
+        current->next = newNode;
         ls.size++;
+        cout << "Элемент '" << key << "' добавлен перед '" << target << "'" << endl;
     } else {
-        cout << "Target " << target << "didn't find" << endl;
+        cout << "Элемент '" << target << "' не найден" << endl;
     }
 }
-*/
 
 
-string FGetValue(SingleLL& ls, string key) {
+void FGetValue(SingleLL& ls, string key) {
     if (ls.head == nullptr) {
         cout << "Error: List is not existing or empty" << endl;
-        return "";
+        return;
     }
     SLNode* current = ls.head;
+    int index;
     while (current != nullptr && current -> key != key) {
         current = current -> next;
+        index++;
     }
     if (current == nullptr) {
         cout << "Element " << key << " didn't find" <<endl;
-        return "";
+        return;
     }
-    return current->key;
+    cout << "SingleList[" << index <<"] = " << key << endl;
 }
 
 string FGetIndex(SingleLL& ls, int index) {
@@ -192,6 +203,40 @@ void FDelValue(SingleLL& ls, string key) {
     }
 }
 
+void FDelFront(SingleLL& ls) {
+    if (ls.head == nullptr) {
+        cout << "Ошибка: пустой список" << endl;
+        return;
+    }
+    SLNode* delNode = ls.head;
+    ls.head = ls.head->next;
+    delete delNode;
+    ls.size--;
+}
+
+void FDelBack(SingleLL& ls) {
+    if (ls.head == nullptr) {
+        cout << "Ошибка: пустой список" << endl;
+    }
+
+    if (ls.head ->next == nullptr) {
+        delete ls.head;
+        ls.head = nullptr;
+        ls.size = 0;
+        cout << "Последний элемент удален" << endl;
+        return;
+    }
+
+    SLNode* current = ls.head;
+    while (current -> next -> next != nullptr) {
+        current = current ->next;
+    }
+    delete current -> next;
+    current->next = nullptr;
+    ls.size--;
+
+}
+
 void FDelAt(SingleLL& ls, int index) {
     if (ls.head == nullptr) {
         cout << "Ошибка: List is empty" << endl;
@@ -225,6 +270,72 @@ void FDelAt(SingleLL& ls, int index) {
         delete temp;
         ls.size--;
         cout << "Элемент с индексом " << index << " удален" << endl;
+    }
+}
+
+void FDelAfter(SingleLL& ls, string target) {
+    if (ls.head == nullptr) {
+        cout << "Ошибка: пустой список" << endl;
+        return;
+    }
+
+    SLNode* current = ls.head;
+    while (current != nullptr && current->key != target) {
+        current = current->next;
+    }
+    if (current == nullptr) {
+        cout << "Ошибка: элемент '" << target << "' не найден" << endl;
+        return;
+    }
+    
+    if (current->next == nullptr) {
+        cout << "Ошибка: после элемента '" << target << "' нет элементов" << endl;
+        return;
+    }
+
+    SLNode* delNode = current->next;
+    current->next = current->next->next;
+    delete delNode;
+    ls.size--;
+    cout << "Элемент после " << target << " удален" << endl;
+}
+
+void FDelBefore(SingleLL& ls, string target) {
+    if (ls.head == nullptr) {
+        cout << "Ошибка: пустой лист" << endl;
+        return;
+    }
+    //если первый элемент
+    if (ls.head->key == target) {
+        cout << "Перед первым элементом ничего нет" << endl;
+        return;
+    }
+
+    //удаление первый если искомый второй
+    if (ls.head->next != nullptr && ls.head->next->key == target) {
+        FDelFront(ls);
+        cout << "Элемент перед " << target << " удален" << endl;
+        return;
+    }
+
+    SLNode* prev = nullptr;
+    SLNode* current = ls.head;
+    while (current->next != nullptr && current->next->key != target) {
+        prev = current;
+        current = current->next;
+    }
+
+    if (current->next == nullptr) {
+        cout << "Элемент " << target << " не найден" << endl;
+        return;
+    }
+
+    if (prev != nullptr) {
+        SLNode* delNode = prev->next;
+        prev->next = current->next;
+        delete delNode;
+        ls.size--;
+        cout << "Элемент перед " << target << " удален" << endl;
     }
 }
 
