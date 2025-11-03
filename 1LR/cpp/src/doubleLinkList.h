@@ -12,6 +12,7 @@ struct DLNode {
 
 struct DoubleList {
     DLNode* head;
+    DLNode* tail;
     int size;
 };
 
