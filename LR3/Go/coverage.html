@@ -1,0 +1,1533 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>lr3: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">lr3/lr3/array.go (90.5%)</option>
+				
+				<option value="file1">lr3/lr3/avl.go (97.4%)</option>
+				
+				<option value="file2">lr3/lr3/double_list.go (89.7%)</option>
+				
+				<option value="file3">lr3/lr3/hashtable.go (88.3%)</option>
+				
+				<option value="file4">lr3/lr3/queue.go (88.3%)</option>
+				
+				<option value="file5">lr3/lr3/single_list.go (87.5%)</option>
+				
+				<option value="file6">lr3/lr3/stack.go (88.5%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package lr3
+
+import (
+        "bufio"
+        "encoding/binary"
+        "errors"
+        "os"
+)
+
+type Array struct {
+        data []string
+}
+
+func NewArray() *Array <span class="cov8" title="1">{
+        return &amp;Array{data: make([]string, 0)}
+}</span>
+
+func (a *Array) Size() int <span class="cov8" title="1">{
+        return len(a.data)
+}</span>
+
+func (a *Array) Get(i int) (string, error) <span class="cov8" title="1">{
+        if i &lt; 0 || i &gt;= len(a.data) </span><span class="cov8" title="1">{
+                return "", errors.New("index out of range")
+        }</span>
+        <span class="cov8" title="1">return a.data[i], nil</span>
+}
+
+func (a *Array) Set(i int, v string) error <span class="cov8" title="1">{
+        if i &lt; 0 || i &gt;= len(a.data) </span><span class="cov8" title="1">{
+                return errors.New("index out of range")
+        }</span>
+        <span class="cov8" title="1">a.data[i] = v
+        return nil</span>
+}
+
+func (a *Array) PushBack(v string) <span class="cov8" title="1">{
+        a.data = append(a.data, v)
+}</span>
+
+func (a *Array) PushFront(v string) <span class="cov8" title="1">{
+        a.data = append([]string{v}, a.data...)
+}</span>
+
+func (a *Array) InsertAt(i int, v string) error <span class="cov8" title="1">{
+        if i &lt; 0 || i &gt; len(a.data) </span><span class="cov8" title="1">{
+                return errors.New("index out of range")
+        }</span>
+        <span class="cov8" title="1">a.data = append(a.data[:i], append([]string{v}, a.data[i:]...)...)
+        return nil</span>
+}
+
+func (a *Array) PopBack() (string, error) <span class="cov8" title="1">{
+        n := len(a.data)
+        if n == 0 </span><span class="cov8" title="1">{
+                return "", errors.New("empty array")
+        }</span>
+        <span class="cov8" title="1">v := a.data[n-1]
+        a.data = a.data[:n-1]
+        return v, nil</span>
+}
+
+func (a *Array) PopFront() (string, error) <span class="cov8" title="1">{
+        if len(a.data) == 0 </span><span class="cov8" title="1">{
+                return "", errors.New("empty array")
+        }</span>
+        <span class="cov8" title="1">v := a.data[0]
+        a.data = a.data[1:]
+        return v, nil</span>
+}
+
+// ---------- текстовая сериализация ----------
+
+func (a *Array) SaveText(path string) error <span class="cov8" title="1">{
+        f, err := os.Create(path)
+        if err != nil </span><span class="cov8" title="1">{
+                return err
+        }</span>
+        <span class="cov8" title="1">defer f.Close()
+
+        w := bufio.NewWriter(f)
+        for _, s := range a.data </span><span class="cov8" title="1">{
+                if _, err := w.WriteString(s + "\n"); err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+        }
+        <span class="cov8" title="1">return w.Flush()</span>
+}
+
+func (a *Array) LoadText(path string) error <span class="cov8" title="1">{
+        f, err := os.Open(path)
+        if err != nil </span><span class="cov8" title="1">{
+                return err
+        }</span>
+        <span class="cov8" title="1">defer f.Close()
+
+        a.data = a.data[:0]
+        sc := bufio.NewScanner(f)
+        for sc.Scan() </span><span class="cov8" title="1">{
+                a.data = append(a.data, sc.Text())
+        }</span>
+        <span class="cov8" title="1">return sc.Err()</span>
+}
+
+// ---------- бинарная сериализация ----------
+
+func (a *Array) SaveBinary(path string) error <span class="cov8" title="1">{
+        f, err := os.Create(path)
+        if err != nil </span><span class="cov8" title="1">{
+                return err
+        }</span>
+        <span class="cov8" title="1">defer f.Close()
+
+        if err := binary.Write(f, binary.LittleEndian, int32(len(a.data))); err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov8" title="1">for _, s := range a.data </span><span class="cov8" title="1">{
+                b := []byte(s)
+                if err := binary.Write(f, binary.LittleEndian, int32(len(b))); err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+                <span class="cov8" title="1">if _, err := f.Write(b); err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+        }
+        <span class="cov8" title="1">return nil</span>
+}
+
+func (a *Array) LoadBinary(path string) error <span class="cov8" title="1">{
+        f, err := os.Open(path)
+        if err != nil </span><span class="cov8" title="1">{
+                return err
+        }</span>
+        <span class="cov8" title="1">defer f.Close()
+
+        a.data = a.data[:0]
+
+        var n int32
+        if err := binary.Read(f, binary.LittleEndian, &amp;n); err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov8" title="1">for i := int32(0); i &lt; n; i++ </span><span class="cov8" title="1">{
+                var l int32
+                if err := binary.Read(f, binary.LittleEndian, &amp;l); err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+                <span class="cov8" title="1">buf := make([]byte, l)
+                if _, err := f.Read(buf); err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+                <span class="cov8" title="1">a.data = append(a.data, string(buf))</span>
+        }
+        <span class="cov8" title="1">return nil</span>
+}</pre>
+		
+		<pre class="file" id="file1" style="display: none">package lr3
+
+// avlNode — узел АВЛ‑дерева.
+type avlNode struct {
+        key    int
+        value  string
+        height int
+        left   *avlNode
+        right  *avlNode
+}
+
+// AVLTree — самобалансирующееся АВЛ‑дерево.
+type AVLTree struct {
+        root *avlNode
+        size int
+}
+
+// NewAVL создаёт пустое АВЛ‑дерево.
+func NewAVL() *AVLTree <span class="cov8" title="1">{
+        return &amp;AVLTree{}
+}</span>
+
+// Size возвращает количество элементов.
+func (t *AVLTree) Size() int <span class="cov8" title="1">{
+        return t.size
+}</span>
+
+// IsEmpty сообщает, пусто ли дерево.
+func (t *AVLTree) IsEmpty() bool <span class="cov8" title="1">{
+        return t.size == 0
+}</span>
+
+// публичный Insert.
+func (t *AVLTree) Insert(key int, value string) <span class="cov8" title="1">{
+        var inserted bool
+        t.root, inserted = t.insertRec(t.root, key, value)
+        if inserted </span><span class="cov8" title="1">{
+                t.size++
+        }</span>
+}
+
+func height(n *avlNode) int <span class="cov8" title="1">{
+        if n == nil </span><span class="cov8" title="1">{
+                return 0
+        }</span>
+        <span class="cov8" title="1">return n.height</span>
+}
+
+func updateHeight(n *avlNode) <span class="cov8" title="1">{
+        hl := height(n.left)
+        hr := height(n.right)
+        if hl &gt; hr </span><span class="cov8" title="1">{
+                n.height = hl + 1
+        }</span> else<span class="cov8" title="1"> {
+                n.height = hr + 1
+        }</span>
+}
+
+func balanceFactor(n *avlNode) int <span class="cov8" title="1">{
+        return height(n.left) - height(n.right)
+}</span>
+
+// правый поворот.
+func rotateRight(y *avlNode) *avlNode <span class="cov8" title="1">{
+        x := y.left
+        T2 := x.right
+
+        x.right = y
+        y.left = T2
+
+        updateHeight(y)
+        updateHeight(x)
+        return x
+}</span>
+
+// левый поворот.
+func rotateLeft(x *avlNode) *avlNode <span class="cov8" title="1">{
+        y := x.right
+        T2 := y.left
+
+        y.left = x
+        x.right = T2
+
+        updateHeight(x)
+        updateHeight(y)
+        return y
+}</span>
+
+func rebalance(node *avlNode) *avlNode <span class="cov8" title="1">{
+        updateHeight(node)
+        bf := balanceFactor(node)
+
+        // Left heavy
+        if bf &gt; 1 </span><span class="cov8" title="1">{
+                // Left-Right
+                if balanceFactor(node.left) &lt; 0 </span><span class="cov8" title="1">{
+                        node.left = rotateLeft(node.left)
+                }</span>
+                // Left-Left
+                <span class="cov8" title="1">return rotateRight(node)</span>
+        }
+
+        // Right heavy
+        <span class="cov8" title="1">if bf &lt; -1 </span><span class="cov8" title="1">{
+                // Right-Left
+                if balanceFactor(node.right) &gt; 0 </span><span class="cov8" title="1">{
+                        node.right = rotateRight(node.right)
+                }</span>
+                // Right-Right
+                <span class="cov8" title="1">return rotateLeft(node)</span>
+        }
+
+        <span class="cov8" title="1">return node</span>
+}
+
+func (t *AVLTree) insertRec(node *avlNode, key int, value string) (*avlNode, bool) <span class="cov8" title="1">{
+        if node == nil </span><span class="cov8" title="1">{
+                return &amp;avlNode{key: key, value: value, height: 1}, true
+        }</span>
+        <span class="cov8" title="1">if key &lt; node.key </span><span class="cov8" title="1">{
+                var inserted bool
+                node.left, inserted = t.insertRec(node.left, key, value)
+                if inserted </span><span class="cov8" title="1">{
+                        node = rebalance(node)
+                }</span>
+                <span class="cov8" title="1">return node, inserted</span>
+        }
+        <span class="cov8" title="1">if key &gt; node.key </span><span class="cov8" title="1">{
+                var inserted bool
+                node.right, inserted = t.insertRec(node.right, key, value)
+                if inserted </span><span class="cov8" title="1">{
+                        node = rebalance(node)
+                }</span>
+                <span class="cov8" title="1">return node, inserted</span>
+        }
+
+        // одинаковый ключ — просто обновляем значение, size не меняем.
+        <span class="cov8" title="1">node.value = value
+        return node, false</span>
+}
+
+// Find ищет ключ и возвращает значение и флаг найден/нет.
+func (t *AVLTree) Find(key int) (string, bool) <span class="cov8" title="1">{
+        n := t.root
+        for n != nil </span><span class="cov8" title="1">{
+                if key &lt; n.key </span><span class="cov8" title="1">{
+                        n = n.left
+                }</span> else<span class="cov8" title="1"> if key &gt; n.key </span><span class="cov8" title="1">{
+                        n = n.right
+                }</span> else<span class="cov8" title="1"> {
+                        return n.value, true
+                }</span>
+        }
+        <span class="cov8" title="1">return "", false</span>
+}
+
+// Contains проверяет наличие ключа.
+func (t *AVLTree) Contains(key int) bool <span class="cov8" title="1">{
+        _, ok := t.Find(key)
+        return ok
+}</span>
+
+// Remove удаляет ключ, возвращает true, если узел удалён.
+func (t *AVLTree) Remove(key int) bool <span class="cov8" title="1">{
+        var removed bool
+        t.root, removed = t.removeRec(t.root, key)
+        if removed </span><span class="cov8" title="1">{
+                t.size--
+        }</span>
+        <span class="cov8" title="1">return removed</span>
+}
+
+func (t *AVLTree) removeRec(node *avlNode, key int) (*avlNode, bool) <span class="cov8" title="1">{
+        if node == nil </span><span class="cov8" title="1">{
+                return nil, false
+        }</span>
+
+        <span class="cov8" title="1">var removed bool
+
+        if key &lt; node.key </span><span class="cov8" title="1">{
+                node.left, removed = t.removeRec(node.left, key)
+        }</span> else<span class="cov8" title="1"> if key &gt; node.key </span><span class="cov8" title="1">{
+                node.right, removed = t.removeRec(node.right, key)
+        }</span> else<span class="cov8" title="1"> {
+                // нашли узел
+                removed = true
+                // 1) 0 или 1 ребёнок
+                if node.left == nil </span><span class="cov8" title="1">{
+                        return node.right, true
+                }</span>
+                <span class="cov8" title="1">if node.right == nil </span><span class="cov0" title="0">{
+                        return node.left, true
+                }</span>
+                // 2) два ребёнка: берём мин справа
+                <span class="cov8" title="1">minRight := node.right
+                for minRight.left != nil </span><span class="cov0" title="0">{
+                        minRight = minRight.left
+                }</span>
+                <span class="cov8" title="1">node.key = minRight.key
+                node.value = minRight.value
+                node.right, _ = t.removeRec(node.right, minRight.key)</span>
+        }
+
+        <span class="cov8" title="1">if node == nil </span><span class="cov0" title="0">{
+                return nil, removed
+        }</span>
+        <span class="cov8" title="1">node = rebalance(node)
+        return node, removed</span>
+}
+
+// Min возвращает минимальный ключ и значение.
+func (t *AVLTree) Min() (int, string, bool) <span class="cov8" title="1">{
+        if t.root == nil </span><span class="cov8" title="1">{
+                return 0, "", false
+        }</span>
+        <span class="cov8" title="1">n := t.root
+        for n.left != nil </span><span class="cov8" title="1">{
+                n = n.left
+        }</span>
+        <span class="cov8" title="1">return n.key, n.value, true</span>
+}
+
+// Max возвращает максимальный ключ и значение.
+func (t *AVLTree) Max() (int, string, bool) <span class="cov8" title="1">{
+        if t.root == nil </span><span class="cov8" title="1">{
+                return 0, "", false
+        }</span>
+        <span class="cov8" title="1">n := t.root
+        for n.right != nil </span><span class="cov8" title="1">{
+                n = n.right
+        }</span>
+        <span class="cov8" title="1">return n.key, n.value, true</span>
+}
+
+// InOrder возвращает пары (key, value) в отсортированном порядке.
+func (t *AVLTree) InOrder() [][2]interface{} <span class="cov8" title="1">{
+        res := make([][2]interface{}, 0, t.size)
+        var dfs func(*avlNode)
+        dfs = func(n *avlNode) </span><span class="cov8" title="1">{
+                if n == nil </span><span class="cov8" title="1">{
+                        return
+                }</span>
+                <span class="cov8" title="1">dfs(n.left)
+                res = append(res, [2]interface{}{n.key, n.value})
+                dfs(n.right)</span>
+        }
+        <span class="cov8" title="1">dfs(t.root)
+        return res</span>
+}
+</pre>
+		
+		<pre class="file" id="file2" style="display: none">package lr3
+
+import (
+        "bufio"
+        "encoding/binary"
+        "errors"
+        "os"
+)
+
+type dNode struct {
+        data string
+        prev *dNode
+        next *dNode
+}
+
+type DoublyList struct {
+        head *dNode
+        tail *dNode
+        size int
+}
+
+func NewDoublyList() *DoublyList <span class="cov8" title="1">{
+        return &amp;DoublyList{}
+}</span>
+
+func (l *DoublyList) Size() int <span class="cov8" title="1">{
+        return l.size
+}</span>
+
+func (l *DoublyList) IsEmpty() bool <span class="cov8" title="1">{
+        return l.size == 0
+}</span>
+
+func (l *DoublyList) Clear() <span class="cov8" title="1">{
+        cur := l.head
+        for cur != nil </span><span class="cov8" title="1">{
+                nxt := cur.next
+                cur.prev = nil
+                cur.next = nil
+                cur = nxt
+        }</span>
+        <span class="cov8" title="1">l.head = nil
+        l.tail = nil
+        l.size = 0</span>
+}
+
+func (l *DoublyList) PushFront(v string) <span class="cov8" title="1">{
+        n := &amp;dNode{data: v}
+        if l.head == nil </span><span class="cov8" title="1">{
+                l.head = n
+                l.tail = n
+        }</span> else<span class="cov8" title="1"> {
+                n.next = l.head
+                l.head.prev = n
+                l.head = n
+        }</span>
+        <span class="cov8" title="1">l.size++</span>
+}
+
+func (l *DoublyList) PushBack(v string) <span class="cov8" title="1">{
+        n := &amp;dNode{data: v}
+        if l.tail == nil </span><span class="cov8" title="1">{
+                l.head = n
+                l.tail = n
+        }</span> else<span class="cov8" title="1"> {
+                n.prev = l.tail
+                l.tail.next = n
+                l.tail = n
+        }</span>
+        <span class="cov8" title="1">l.size++</span>
+}
+
+func (l *DoublyList) PopFront() (string, error) <span class="cov8" title="1">{
+        if l.head == nil </span><span class="cov8" title="1">{
+                return "", errors.New("empty list")
+        }</span>
+        <span class="cov8" title="1">v := l.head.data
+        l.head = l.head.next
+        if l.head != nil </span><span class="cov8" title="1">{
+                l.head.prev = nil
+        }</span> else<span class="cov8" title="1"> {
+                l.tail = nil
+        }</span>
+        <span class="cov8" title="1">l.size--
+        return v, nil</span>
+}
+
+func (l *DoublyList) PopBack() (string, error) <span class="cov8" title="1">{
+        if l.tail == nil </span><span class="cov8" title="1">{
+                return "", errors.New("empty list")
+        }</span>
+        <span class="cov8" title="1">v := l.tail.data
+        l.tail = l.tail.prev
+        if l.tail != nil </span><span class="cov8" title="1">{
+                l.tail.next = nil
+        }</span> else<span class="cov8" title="1"> {
+                l.head = nil
+        }</span>
+        <span class="cov8" title="1">l.size--
+        return v, nil</span>
+}
+
+func (l *DoublyList) InsertAfter(target, v string) bool <span class="cov8" title="1">{
+        cur := l.head
+        for cur != nil </span><span class="cov8" title="1">{
+                if cur.data == target </span><span class="cov8" title="1">{
+                        n := &amp;dNode{data: v}
+                        n.prev = cur
+                        n.next = cur.next
+                        if cur.next != nil </span><span class="cov8" title="1">{
+                                cur.next.prev = n
+                        }</span> else<span class="cov0" title="0"> {
+                                l.tail = n
+                        }</span>
+                        <span class="cov8" title="1">cur.next = n
+                        l.size++
+                        return true</span>
+                }
+                <span class="cov8" title="1">cur = cur.next</span>
+        }
+        <span class="cov8" title="1">return false</span>
+}
+
+func (l *DoublyList) InsertBefore(target, v string) bool <span class="cov8" title="1">{
+        cur := l.head
+        for cur != nil </span><span class="cov8" title="1">{
+                if cur.data == target </span><span class="cov8" title="1">{
+                        n := &amp;dNode{data: v}
+                        n.next = cur
+                        n.prev = cur.prev
+                        if cur.prev != nil </span><span class="cov0" title="0">{
+                                cur.prev.next = n
+                        }</span> else<span class="cov8" title="1"> {
+                                l.head = n
+                        }</span>
+                        <span class="cov8" title="1">cur.prev = n
+                        l.size++
+                        return true</span>
+                }
+                <span class="cov8" title="1">cur = cur.next</span>
+        }
+        <span class="cov8" title="1">return false</span>
+}
+
+func (l *DoublyList) RemoveByValue(v string) bool <span class="cov8" title="1">{
+        cur := l.head
+        for cur != nil </span><span class="cov8" title="1">{
+                if cur.data == v </span><span class="cov8" title="1">{
+                        if cur.prev != nil </span><span class="cov8" title="1">{
+                                cur.prev.next = cur.next
+                        }</span> else<span class="cov8" title="1"> {
+                                l.head = cur.next
+                        }</span>
+                        <span class="cov8" title="1">if cur.next != nil </span><span class="cov8" title="1">{
+                                cur.next.prev = cur.prev
+                        }</span> else<span class="cov8" title="1"> {
+                                l.tail = cur.prev
+                        }</span>
+                        <span class="cov8" title="1">l.size--
+                        return true</span>
+                }
+                <span class="cov8" title="1">cur = cur.next</span>
+        }
+        <span class="cov8" title="1">return false</span>
+}
+
+func (l *DoublyList) Search(v string) bool <span class="cov0" title="0">{
+        cur := l.head
+        for cur != nil </span><span class="cov0" title="0">{
+                if cur.data == v </span><span class="cov0" title="0">{
+                        return true
+                }</span>
+                <span class="cov0" title="0">cur = cur.next</span>
+        }
+        <span class="cov0" title="0">return false</span>
+}
+
+// ---------- текстовая сериализация ----------
+
+func (l *DoublyList) SaveText(path string) error <span class="cov8" title="1">{
+        f, err := os.Create(path)
+        if err != nil </span><span class="cov8" title="1">{
+                return err
+        }</span>
+        <span class="cov8" title="1">defer f.Close()
+
+        w := bufio.NewWriter(f)
+        cur := l.head
+        for cur != nil </span><span class="cov8" title="1">{
+                if _, err := w.WriteString(cur.data + "\n"); err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+                <span class="cov8" title="1">cur = cur.next</span>
+        }
+        <span class="cov8" title="1">return w.Flush()</span>
+}
+
+func (l *DoublyList) LoadText(path string) error <span class="cov8" title="1">{
+        f, err := os.Open(path)
+        if err != nil </span><span class="cov8" title="1">{
+                return err
+        }</span>
+        <span class="cov8" title="1">defer f.Close()
+
+        l.Clear()
+        sc := bufio.NewScanner(f)
+        for sc.Scan() </span><span class="cov8" title="1">{
+                l.PushBack(sc.Text())
+        }</span>
+        <span class="cov8" title="1">return sc.Err()</span>
+}
+
+// ---------- бинарная сериализация ----------
+
+func (l *DoublyList) SaveBinary(path string) error <span class="cov8" title="1">{
+        f, err := os.Create(path)
+        if err != nil </span><span class="cov8" title="1">{
+                return err
+        }</span>
+        <span class="cov8" title="1">defer f.Close()
+
+        if err := binary.Write(f, binary.LittleEndian, int32(l.size)); err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov8" title="1">cur := l.head
+        for cur != nil </span><span class="cov8" title="1">{
+                b := []byte(cur.data)
+                if err := binary.Write(f, binary.LittleEndian, int32(len(b))); err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+                <span class="cov8" title="1">if _, err := f.Write(b); err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+                <span class="cov8" title="1">cur = cur.next</span>
+        }
+        <span class="cov8" title="1">return nil</span>
+}
+
+func (l *DoublyList) LoadBinary(path string) error <span class="cov8" title="1">{
+        f, err := os.Open(path)
+        if err != nil </span><span class="cov8" title="1">{
+                return err
+        }</span>
+        <span class="cov8" title="1">defer f.Close()
+
+        l.Clear()
+
+        var n int32
+        if err := binary.Read(f, binary.LittleEndian, &amp;n); err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov8" title="1">for i := int32(0); i &lt; n; i++ </span><span class="cov8" title="1">{
+                var ln int32
+                if err := binary.Read(f, binary.LittleEndian, &amp;ln); err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+                <span class="cov8" title="1">buf := make([]byte, ln)
+                if _, err := f.Read(buf); err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+                <span class="cov8" title="1">l.PushBack(string(buf))</span>
+        }
+        <span class="cov8" title="1">return nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file3" style="display: none">package lr3
+
+import (
+        "bufio"
+        "encoding/binary"
+        "errors"
+        "hash/fnv"
+        "os"
+)
+
+type htEntry struct {
+        key   string
+        value string
+        next  *htEntry
+}
+
+type HashTable struct {
+        buckets []*htEntry
+        size    int
+}
+
+func NewHashTable() *HashTable <span class="cov8" title="1">{
+        // фиксированное число бакетов для простоты
+        return &amp;HashTable{
+                buckets: make([]*htEntry, 16),
+        }
+}</span>
+
+func (h *HashTable) Size() int <span class="cov8" title="1">{
+        return h.size
+}</span>
+
+func (h *HashTable) IsEmpty() bool <span class="cov8" title="1">{
+        return h.size == 0
+}</span>
+
+func (h *HashTable) hash(key string) int <span class="cov8" title="1">{
+        hasher := fnv.New32a()
+        _, _ = hasher.Write([]byte(key))
+        return int(hasher.Sum32() % uint32(len(h.buckets)))
+}</span>
+
+// Put добавляет или обновляет значение по ключу.
+func (h *HashTable) Put(key, value string) <span class="cov8" title="1">{
+        idx := h.hash(key)
+        head := h.buckets[idx]
+
+        // обновление существующего
+        for e := head; e != nil; e = e.next </span><span class="cov8" title="1">{
+                if e.key == key </span><span class="cov8" title="1">{
+                        e.value = value
+                        return
+                }</span>
+        }
+
+        // вставка в голову цепочки
+        <span class="cov8" title="1">newEntry := &amp;htEntry{key: key, value: value, next: head}
+        h.buckets[idx] = newEntry
+        h.size++</span>
+}
+
+// Get возвращает значение и флаг, найден ключ или нет.
+func (h *HashTable) Get(key string) (string, bool) <span class="cov8" title="1">{
+        idx := h.hash(key)
+        for e := h.buckets[idx]; e != nil; e = e.next </span><span class="cov8" title="1">{
+                if e.key == key </span><span class="cov8" title="1">{
+                        return e.value, true
+                }</span>
+        }
+        <span class="cov8" title="1">return "", false</span>
+}
+
+// Remove удаляет элемент по ключу, возвращает true, если что‑то удалили.
+func (h *HashTable) Remove(key string) bool <span class="cov8" title="1">{
+        idx := h.hash(key)
+        head := h.buckets[idx]
+        if head == nil </span><span class="cov8" title="1">{
+                return false
+        }</span>
+
+        <span class="cov8" title="1">if head.key == key </span><span class="cov8" title="1">{
+                h.buckets[idx] = head.next
+                h.size--
+                return true
+        }</span>
+
+        <span class="cov8" title="1">prev := head
+        for e := head.next; e != nil; e = e.next </span><span class="cov8" title="1">{
+                if e.key == key </span><span class="cov0" title="0">{
+                        prev.next = e.next
+                        h.size--
+                        return true
+                }</span>
+                <span class="cov8" title="1">prev = e</span>
+        }
+        <span class="cov8" title="1">return false</span>
+}
+
+// ---------- текстовая сериализация ----------
+
+// Формат: по строке "key=value" на элемент.
+func (h *HashTable) SaveText(path string) error <span class="cov8" title="1">{
+        f, err := os.Create(path)
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov8" title="1">defer f.Close()
+
+        w := bufio.NewWriter(f)
+        for _, head := range h.buckets </span><span class="cov8" title="1">{
+                for e := head; e != nil; e = e.next </span><span class="cov8" title="1">{
+                        if _, err := w.WriteString(e.key + "=" + e.value + "\n"); err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+                }
+        }
+        <span class="cov8" title="1">return w.Flush()</span>
+}
+
+func (h *HashTable) LoadText(path string) error <span class="cov8" title="1">{
+        f, err := os.Open(path)
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov8" title="1">defer f.Close()
+
+        // очищаем таблицу
+        h.buckets = make([]*htEntry, len(h.buckets))
+        h.size = 0
+
+        sc := bufio.NewScanner(f)
+        for sc.Scan() </span><span class="cov8" title="1">{
+                line := sc.Text()
+                if line == "" </span><span class="cov8" title="1">{
+                        continue</span>
+                }
+                <span class="cov8" title="1">sep := -1
+                for i := 0; i &lt; len(line); i++ </span><span class="cov8" title="1">{
+                        if line[i] == '=' </span><span class="cov8" title="1">{
+                                sep = i
+                                break</span>
+                        }
+                }
+                <span class="cov8" title="1">if sep &lt;= 0 || sep == len(line)-1 </span><span class="cov8" title="1">{
+                        return errors.New("invalid line in text file")
+                }</span>
+                <span class="cov8" title="1">key := line[:sep]
+                val := line[sep+1:]
+                h.Put(key, val)</span>
+        }
+        <span class="cov8" title="1">return sc.Err()</span>
+}
+
+// ---------- бинарная сериализация ----------
+//
+// Формат:
+// int32 count
+//   для каждого:
+//     int32 keyLen, []byte(key)
+//     int32 valLen, []byte(val)
+
+func (h *HashTable) SaveBinary(path string) error <span class="cov8" title="1">{
+        f, err := os.Create(path)
+        if err != nil </span><span class="cov8" title="1">{
+                return err
+        }</span>
+        <span class="cov8" title="1">defer f.Close()
+
+        if err := binary.Write(f, binary.LittleEndian, int32(h.size)); err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov8" title="1">for _, head := range h.buckets </span><span class="cov8" title="1">{
+                for e := head; e != nil; e = e.next </span><span class="cov8" title="1">{
+                        kb := []byte(e.key)
+                        vb := []byte(e.value)
+                        if err := binary.Write(f, binary.LittleEndian, int32(len(kb))); err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+                        <span class="cov8" title="1">if _, err := f.Write(kb); err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+                        <span class="cov8" title="1">if err := binary.Write(f, binary.LittleEndian, int32(len(vb))); err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+                        <span class="cov8" title="1">if _, err := f.Write(vb); err != nil </span><span class="cov0" title="0">{
+                                return err
+                        }</span>
+                }
+        }
+        <span class="cov8" title="1">return nil</span>
+}
+
+func (h *HashTable) LoadBinary(path string) error <span class="cov8" title="1">{
+        f, err := os.Open(path)
+        if err != nil </span><span class="cov8" title="1">{
+                return err
+        }</span>
+        <span class="cov8" title="1">defer f.Close()
+
+        h.buckets = make([]*htEntry, len(h.buckets))
+        h.size = 0
+
+        var count int32
+        if err := binary.Read(f, binary.LittleEndian, &amp;count); err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov8" title="1">for i := int32(0); i &lt; count; i++ </span><span class="cov8" title="1">{
+                var klen int32
+                if err := binary.Read(f, binary.LittleEndian, &amp;klen); err != nil </span><span class="cov8" title="1">{
+                        return err
+                }</span>
+                <span class="cov8" title="1">kb := make([]byte, klen)
+                if _, err := f.Read(kb); err != nil </span><span class="cov8" title="1">{
+                        return err
+                }</span>
+
+                <span class="cov8" title="1">var vlen int32
+                if err := binary.Read(f, binary.LittleEndian, &amp;vlen); err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+                <span class="cov8" title="1">vb := make([]byte, vlen)
+                if _, err := f.Read(vb); err != nil </span><span class="cov8" title="1">{
+                        return err
+                }</span>
+                <span class="cov8" title="1">h.Put(string(kb), string(vb))</span>
+        }
+        <span class="cov8" title="1">return nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file4" style="display: none">package lr3
+
+import (
+        "bufio"
+        "encoding/binary"
+        "errors"
+        "os"
+)
+
+type Queue struct {
+        data []string
+}
+
+func NewQueue() *Queue <span class="cov8" title="1">{
+        return &amp;Queue{data: make([]string, 0)}
+}</span>
+
+func (q *Queue) Size() int <span class="cov8" title="1">{
+        return len(q.data)
+}</span>
+
+func (q *Queue) IsEmpty() bool <span class="cov8" title="1">{
+        return len(q.data) == 0
+}</span>
+
+func (q *Queue) Enqueue(v string) <span class="cov8" title="1">{
+        q.data = append(q.data, v)
+}</span>
+
+func (q *Queue) Dequeue() (string, error) <span class="cov8" title="1">{
+        if len(q.data) == 0 </span><span class="cov8" title="1">{
+                return "", errors.New("empty queue")
+        }</span>
+        <span class="cov8" title="1">v := q.data[0]
+        q.data = q.data[1:]
+        return v, nil</span>
+}
+
+func (q *Queue) Peek() (string, error) <span class="cov8" title="1">{
+        if len(q.data) == 0 </span><span class="cov8" title="1">{
+                return "", errors.New("empty queue")
+        }</span>
+        <span class="cov8" title="1">return q.data[0], nil</span>
+}
+
+// ---------- текстовая сериализация ----------
+
+func (q *Queue) SaveText(path string) error <span class="cov8" title="1">{
+        f, err := os.Create(path)
+        if err != nil </span><span class="cov8" title="1">{
+                return err
+        }</span>
+        <span class="cov8" title="1">defer f.Close()
+
+        w := bufio.NewWriter(f)
+        for _, v := range q.data </span><span class="cov8" title="1">{
+                if _, err := w.WriteString(v + "\n"); err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+        }
+        <span class="cov8" title="1">return w.Flush()</span>
+}
+
+func (q *Queue) LoadText(path string) error <span class="cov8" title="1">{
+        f, err := os.Open(path)
+        if err != nil </span><span class="cov8" title="1">{
+                return err
+        }</span>
+        <span class="cov8" title="1">defer f.Close()
+
+        q.data = q.data[:0]
+        sc := bufio.NewScanner(f)
+        for sc.Scan() </span><span class="cov8" title="1">{
+                q.data = append(q.data, sc.Text())
+        }</span>
+        <span class="cov8" title="1">return sc.Err()</span>
+}
+
+// ---------- бинарная сериализация ----------
+
+func (q *Queue) SaveBinary(path string) error <span class="cov8" title="1">{
+        f, err := os.Create(path)
+        if err != nil </span><span class="cov8" title="1">{
+                return err
+        }</span>
+        <span class="cov8" title="1">defer f.Close()
+
+        if err := binary.Write(f, binary.LittleEndian, int32(len(q.data))); err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov8" title="1">for _, v := range q.data </span><span class="cov8" title="1">{
+                b := []byte(v)
+                if err := binary.Write(f, binary.LittleEndian, int32(len(b))); err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+                <span class="cov8" title="1">if _, err := f.Write(b); err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+        }
+        <span class="cov8" title="1">return nil</span>
+}
+
+func (q *Queue) LoadBinary(path string) error <span class="cov8" title="1">{
+        f, err := os.Open(path)
+        if err != nil </span><span class="cov8" title="1">{
+                return err
+        }</span>
+        <span class="cov8" title="1">defer f.Close()
+
+        q.data = q.data[:0]
+
+        var n int32
+        if err := binary.Read(f, binary.LittleEndian, &amp;n); err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov8" title="1">for i := int32(0); i &lt; n; i++ </span><span class="cov8" title="1">{
+                var l int32
+                if err := binary.Read(f, binary.LittleEndian, &amp;l); err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+                <span class="cov8" title="1">buf := make([]byte, l)
+                if _, err := f.Read(buf); err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+                <span class="cov8" title="1">q.data = append(q.data, string(buf))</span>
+        }
+        <span class="cov8" title="1">return nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file5" style="display: none">package lr3
+
+import (
+        "bufio"
+        "encoding/binary"
+        "errors"
+        "os"
+)
+
+type singlyNode struct {
+        data string
+        next *singlyNode
+}
+
+type SinglyList struct {
+        head *singlyNode
+        tail *singlyNode
+        size int
+}
+
+func NewSinglyList() *SinglyList <span class="cov8" title="1">{
+        return &amp;SinglyList{}
+}</span>
+
+func (l *SinglyList) Size() int <span class="cov8" title="1">{
+        return l.size
+}</span>
+
+func (l *SinglyList) IsEmpty() bool <span class="cov8" title="1">{
+        return l.size == 0
+}</span>
+
+func (l *SinglyList) Clear() <span class="cov8" title="1">{
+        for l.head != nil </span><span class="cov8" title="1">{
+                tmp := l.head
+                l.head = l.head.next
+                _ = tmp
+        }</span>
+        <span class="cov8" title="1">l.tail = nil
+        l.size = 0</span>
+}
+
+func (l *SinglyList) PushFront(v string) <span class="cov8" title="1">{
+        n := &amp;singlyNode{data: v, next: l.head}
+        l.head = n
+        if l.tail == nil </span><span class="cov0" title="0">{
+                l.tail = n
+        }</span>
+        <span class="cov8" title="1">l.size++</span>
+}
+
+func (l *SinglyList) PushBack(v string) <span class="cov8" title="1">{
+        n := &amp;singlyNode{data: v}
+        if l.tail == nil </span><span class="cov8" title="1">{
+                l.head = n
+                l.tail = n
+        }</span> else<span class="cov8" title="1"> {
+                l.tail.next = n
+                l.tail = n
+        }</span>
+        <span class="cov8" title="1">l.size++</span>
+}
+
+func (l *SinglyList) PopFront() (string, error) <span class="cov8" title="1">{
+        if l.head == nil </span><span class="cov8" title="1">{
+                return "", errors.New("empty list")
+        }</span>
+        <span class="cov8" title="1">v := l.head.data
+        l.head = l.head.next
+        if l.head == nil </span><span class="cov0" title="0">{
+                l.tail = nil
+        }</span>
+        <span class="cov8" title="1">l.size--
+        return v, nil</span>
+}
+
+func (l *SinglyList) PopBack() (string, error) <span class="cov8" title="1">{
+        if l.head == nil </span><span class="cov8" title="1">{
+                return "", errors.New("empty list")
+        }</span>
+        <span class="cov8" title="1">if l.head == l.tail </span><span class="cov8" title="1">{
+                v := l.head.data
+                l.head = nil
+                l.tail = nil
+                l.size--
+                return v, nil
+        }</span>
+        <span class="cov8" title="1">cur := l.head
+        for cur.next != nil &amp;&amp; cur.next != l.tail </span><span class="cov0" title="0">{
+                cur = cur.next
+        }</span>
+        <span class="cov8" title="1">v := l.tail.data
+        cur.next = nil
+        l.tail = cur
+        l.size--
+        return v, nil</span>
+}
+
+func (l *SinglyList) InsertAfter(target, v string) bool <span class="cov8" title="1">{
+        cur := l.head
+        for cur != nil </span><span class="cov8" title="1">{
+                if cur.data == target </span><span class="cov8" title="1">{
+                        n := &amp;singlyNode{data: v, next: cur.next}
+                        cur.next = n
+                        if l.tail == cur </span><span class="cov0" title="0">{
+                                l.tail = n
+                        }</span>
+                        <span class="cov8" title="1">l.size++
+                        return true</span>
+                }
+                <span class="cov8" title="1">cur = cur.next</span>
+        }
+        <span class="cov8" title="1">return false</span>
+}
+
+func (l *SinglyList) InsertBefore(target, v string) bool <span class="cov8" title="1">{
+        if l.head == nil </span><span class="cov8" title="1">{
+                return false
+        }</span>
+        <span class="cov8" title="1">if l.head.data == target </span><span class="cov8" title="1">{
+                l.PushFront(v)
+                return true
+        }</span>
+        <span class="cov8" title="1">cur := l.head
+        for cur.next != nil </span><span class="cov8" title="1">{
+                if cur.next.data == target </span><span class="cov0" title="0">{
+                        n := &amp;singlyNode{data: v, next: cur.next}
+                        cur.next = n
+                        l.size++
+                        return true
+                }</span>
+                <span class="cov8" title="1">cur = cur.next</span>
+        }
+        <span class="cov8" title="1">return false</span>
+}
+
+func (l *SinglyList) RemoveByValue(v string) bool <span class="cov8" title="1">{
+        if l.head == nil </span><span class="cov0" title="0">{
+                return false
+        }</span>
+        <span class="cov8" title="1">if l.head.data == v </span><span class="cov0" title="0">{
+                _, _ = l.PopFront()
+                return true
+        }</span>
+        <span class="cov8" title="1">cur := l.head
+        for cur.next != nil </span><span class="cov8" title="1">{
+                if cur.next.data == v </span><span class="cov8" title="1">{
+                        tmp := cur.next
+                        cur.next = tmp.next
+                        if tmp == l.tail </span><span class="cov8" title="1">{
+                                l.tail = cur
+                        }</span>
+                        <span class="cov8" title="1">l.size--
+                        return true</span>
+                }
+                <span class="cov8" title="1">cur = cur.next</span>
+        }
+        <span class="cov8" title="1">return false</span>
+}
+
+func (l *SinglyList) Search(v string) bool <span class="cov8" title="1">{
+        cur := l.head
+        for cur != nil </span><span class="cov8" title="1">{
+                if cur.data == v </span><span class="cov8" title="1">{
+                        return true
+                }</span>
+                <span class="cov8" title="1">cur = cur.next</span>
+        }
+        <span class="cov8" title="1">return false</span>
+}
+
+// ---------- текстовая сериализация ----------
+
+func (l *SinglyList) SaveText(path string) error <span class="cov8" title="1">{
+        f, err := os.Create(path)
+        if err != nil </span><span class="cov8" title="1">{
+                return err
+        }</span>
+        <span class="cov8" title="1">defer f.Close()
+
+        w := bufio.NewWriter(f)
+        cur := l.head
+        for cur != nil </span><span class="cov8" title="1">{
+                if _, err := w.WriteString(cur.data + "\n"); err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+                <span class="cov8" title="1">cur = cur.next</span>
+        }
+        <span class="cov8" title="1">return w.Flush()</span>
+}
+
+func (l *SinglyList) LoadText(path string) error <span class="cov8" title="1">{
+        f, err := os.Open(path)
+        if err != nil </span><span class="cov8" title="1">{
+                return err
+        }</span>
+        <span class="cov8" title="1">defer f.Close()
+
+        l.Clear()
+        sc := bufio.NewScanner(f)
+        for sc.Scan() </span><span class="cov8" title="1">{
+                l.PushBack(sc.Text())
+        }</span>
+        <span class="cov8" title="1">return sc.Err()</span>
+}
+
+// ---------- бинарная сериализация ----------
+
+func (l *SinglyList) SaveBinary(path string) error <span class="cov8" title="1">{
+        f, err := os.Create(path)
+        if err != nil </span><span class="cov8" title="1">{
+                return err
+        }</span>
+        <span class="cov8" title="1">defer f.Close()
+
+        if err := binary.Write(f, binary.LittleEndian, int32(l.size)); err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov8" title="1">cur := l.head
+        for cur != nil </span><span class="cov8" title="1">{
+                b := []byte(cur.data)
+                if err := binary.Write(f, binary.LittleEndian, int32(len(b))); err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+                <span class="cov8" title="1">if _, err := f.Write(b); err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+                <span class="cov8" title="1">cur = cur.next</span>
+        }
+        <span class="cov8" title="1">return nil</span>
+}
+
+func (l *SinglyList) LoadBinary(path string) error <span class="cov8" title="1">{
+        f, err := os.Open(path)
+        if err != nil </span><span class="cov8" title="1">{
+                return err
+        }</span>
+        <span class="cov8" title="1">defer f.Close()
+
+        l.Clear()
+
+        var n int32
+        if err := binary.Read(f, binary.LittleEndian, &amp;n); err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov8" title="1">for i := int32(0); i &lt; n; i++ </span><span class="cov8" title="1">{
+                var lgt int32
+                if err := binary.Read(f, binary.LittleEndian, &amp;lgt); err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+                <span class="cov8" title="1">buf := make([]byte, lgt)
+                if _, err := f.Read(buf); err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+                <span class="cov8" title="1">l.PushBack(string(buf))</span>
+        }
+        <span class="cov8" title="1">return nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file6" style="display: none">package lr3
+
+import (
+        "bufio"
+        "encoding/binary"
+        "errors"
+        "os"
+)
+
+type Stack struct {
+        data []string
+}
+
+func NewStack() *Stack <span class="cov8" title="1">{
+        return &amp;Stack{data: make([]string, 0)}
+}</span>
+
+func (s *Stack) Size() int <span class="cov8" title="1">{
+        return len(s.data)
+}</span>
+
+func (s *Stack) Push(v string) <span class="cov8" title="1">{
+        s.data = append(s.data, v)
+}</span>
+
+func (s *Stack) Pop() (string, error) <span class="cov8" title="1">{
+        n := len(s.data)
+        if n == 0 </span><span class="cov8" title="1">{
+                return "", errors.New("empty stack")
+        }</span>
+        <span class="cov8" title="1">v := s.data[n-1]
+        s.data = s.data[:n-1]
+        return v, nil</span>
+}
+
+func (s *Stack) Peek() (string, error) <span class="cov8" title="1">{
+        n := len(s.data)
+        if n == 0 </span><span class="cov8" title="1">{
+                return "", errors.New("empty stack")
+        }</span>
+        <span class="cov8" title="1">return s.data[n-1], nil</span>
+}
+
+// ---------- текстовая сериализация ----------
+
+func (s *Stack) SaveText(path string) error <span class="cov8" title="1">{
+        f, err := os.Create(path)
+        if err != nil </span><span class="cov8" title="1">{
+                return err
+        }</span>
+        <span class="cov8" title="1">defer f.Close()
+
+        w := bufio.NewWriter(f)
+        for _, v := range s.data </span><span class="cov8" title="1">{
+                if _, err := w.WriteString(v + "\n"); err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+        }
+        <span class="cov8" title="1">return w.Flush()</span>
+}
+
+func (s *Stack) LoadText(path string) error <span class="cov8" title="1">{
+        f, err := os.Open(path)
+        if err != nil </span><span class="cov8" title="1">{
+                return err
+        }</span>
+        <span class="cov8" title="1">defer f.Close()
+
+        s.data = s.data[:0]
+        sc := bufio.NewScanner(f)
+        for sc.Scan() </span><span class="cov8" title="1">{
+                s.data = append(s.data, sc.Text())
+        }</span>
+        <span class="cov8" title="1">return sc.Err()</span>
+}
+
+// ---------- бинарная сериализация ----------
+
+func (s *Stack) SaveBinary(path string) error <span class="cov8" title="1">{
+        f, err := os.Create(path)
+        if err != nil </span><span class="cov8" title="1">{
+                return err
+        }</span>
+        <span class="cov8" title="1">defer f.Close()
+
+        if err := binary.Write(f, binary.LittleEndian, int32(len(s.data))); err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov8" title="1">for _, v := range s.data </span><span class="cov8" title="1">{
+                b := []byte(v)
+                if err := binary.Write(f, binary.LittleEndian, int32(len(b))); err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+                <span class="cov8" title="1">if _, err := f.Write(b); err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+        }
+        <span class="cov8" title="1">return nil</span>
+}
+
+func (s *Stack) LoadBinary(path string) error <span class="cov8" title="1">{
+        f, err := os.Open(path)
+        if err != nil </span><span class="cov8" title="1">{
+                return err
+        }</span>
+        <span class="cov8" title="1">defer f.Close()
+
+        s.data = s.data[:0]
+
+        var n int32
+        if err := binary.Read(f, binary.LittleEndian, &amp;n); err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+        <span class="cov8" title="1">for i := int32(0); i &lt; n; i++ </span><span class="cov8" title="1">{
+                var l int32
+                if err := binary.Read(f, binary.LittleEndian, &amp;l); err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+                <span class="cov8" title="1">buf := make([]byte, l)
+                if _, err := f.Read(buf); err != nil </span><span class="cov0" title="0">{
+                        return err
+                }</span>
+                <span class="cov8" title="1">s.data = append(s.data, string(buf))</span>
+        }
+        <span class="cov8" title="1">return nil</span>
+}
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>
